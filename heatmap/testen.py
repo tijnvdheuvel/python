@@ -35,33 +35,41 @@ DotScale = 5000  # int(round(9.82 * plotXmax, 0))
 # Omreken factor coördinaten berekenen
 m = max(users)
 
-#API settings:
+# API settings:
 ur = "https://cloud.internalpositioning.com"
 fam = "testdb"
+mode = "test"
+bbox = (min_lon, min_lat, max_lon, max_lat)
+final_db = []
 
 
 def get_data(url, family):
+    print("Getting data...")
     api_db = call.api_call(url, family)
-    final_db = []
     i = 0
-    if i < len(api_db):
+    while i < len(api_db):
         if "verdieping_0" in api_db["location"]:
-            # bbox = * waardes *
-            x_cord = api_db[""]
-            final_db[0].append(api)
+            final_db[0].append(api_db[i])
+        i += 1
+        if "verdieping_1" in api_db["location"]:
+            final_db[1].append(api_db[i])
+        i += 1
+        if "verdieping_2" in api_db["location"]:
+            final_db[2].append(api_db[i])
+        i += 1
+        if "verdieping_3" in api_db["location"]:
+            final_db[3].append(api_db[i])
+        i += 1
 
 
-bbox = (min_lon, min_lat, max_lon, max_lat)
-
-
-def heatmap(lat, long, c, cmap, vmin, vmax, imname, alph, s, pname, boundry):
-
+def demo_heatmap(lat, long, c, cmap, vmin, vmax, imname, alph, s, pname, boundry, floor):
     fig, ax = plt.subplots()
-    ax.set_xlim(left=boundry[0], right=boundry[2],)
+    ax.set_xlim(left=boundry[0], right=boundry[2], )
     ax.set_ylim(top=boundry[3], bottom=boundry[1])
     img = plt.imread(imname)
     ax.imshow(img, extent=[boundry[0], boundry[2], boundry[1], boundry[3]], origin=[5.47923, 51.45108])
     plt.title(pname)
+
     plot = ax.scatter(lat, long, s=s, alpha=alph, c=c, cmap=cmap, vmin=vmin, vmax=vmax, )
 
     plt.axis('off')
@@ -74,16 +82,54 @@ def heatmap(lat, long, c, cmap, vmin, vmax, imname, alph, s, pname, boundry):
 
     a = "gevulde_" + imname
 
-
-     #im.figsize = (18.5, 6.5)
+    # im.figsize = (18.5, 6.5)
 
     plt.savefig(a, dpi=320, transparent=True)
     print("Heatmap [" + imname + "] done.")
 
 
-heatmap(lat=x, long=y, c=users, cmap=pl.cm.rainbow, boundry=bbox, vmin=1, vmax=m, imname="heatmap_bg.png", s=DotScale, alph=0.4, pname="Heatmap Begane Grond")
+def heatmap(lat, long, c, cmap, vmin, vmax, imname, alph, s, pname, boundry, floor):
+    fig, ax = plt.subplots()
+    ax.set_xlim(left=boundry[0], right=boundry[2], )
+    ax.set_ylim(top=boundry[3], bottom=boundry[1])
+    img = plt.imread(imname)
+    ax.imshow(img, extent=[boundry[0], boundry[2], boundry[1], boundry[3]], origin=[5.47923, 51.45108])
+    plt.title(pname)
 
-#FHICT 19/20 Infra | Proftaak Groep B, Team A: Tijn, Daan, Jimmy, Nassim, Mika, Luc, Thomas
+    plot = ax.scatter(lat, long, s=s, alpha=alph, c=c, cmap=cmap, vmin=vmin, vmax=vmax, )
+
+    plt.axis('off')
+
+    divider = make_axes_locatable(ax)
+    cax = divider.append_axes("right", size="5%", pad=0.05)
+    cbar = plt.colorbar(plot, cax=cax)
+    cbar.ax.get_yaxis().labelpad = 15
+    cbar.ax.set_ylabel('aantal personen', rotation=270)
+
+    a = "gevulde_" + imname
+
+    # im.figsize = (18.5, 6.5)
+
+    plt.savefig(a, dpi=320, transparent=True)
+    print("Heatmap [" + imname + "] done.")
 
 
+if mode == "test":
+    print("Mode: test")
+    demo_heatmap(lat=x, long=y, c=users, cmap=pl.cm.rainbow, boundry=bbox, vmin=1, vmax=m, imname="heatmap_bg.png",
+                 s=DotScale, alph=0.4, pname="Heatmap Begane Grond")
+elif mode == "live":
+    print("Mode: live")
+    print("Introduction live mode started.")
+    print("Please specify the url to call (e.g. [http://website.com:port])")
+    ur = input()
+    print("chosen URL: ", ur)
+    print("Please specify the family you want to use (e.g. [testdb])")
+    fam = input()
+    print("chosen Family: ", fam)
+    get_data(ur, fam)
+    #Hier verder gaan
+    heatmap(lat=x, long=y, c=users, cmap=pl.cm.rainbow, boundry=bbox, vmin=1, vmax=m, imname="heatmap_bg.png",
+            s=DotScale, alph=0.4, pname="Heatmap Begane Grond")
 
+# FHICT 19/20 Infra | Proftaak Groep B, Team A: Tijn, Daan, Jimmy, Nassim, Mika, Luc, Thomas.
