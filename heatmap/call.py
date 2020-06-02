@@ -17,21 +17,33 @@ def api_call(url, family):
     print(r["locations"][0])
     if re.status_code == 200 and r["success"] == True:
         i = 0
-        t = 0
         while i < len(r["locations"]):
 
             name = r['locations'][i]["location"]
             lat = r['locations'][i]["gps"]["lat"]
             lon = r['locations'][i]["gps"]["lon"]
             tot = r['locations'][i]["total"]
-            all_devices.append({"location": name, "lat": lat, "lon": lon, "tot": tot})
+            if "floor_0" in name:
+                t = 0
+            if "floor_1" in name:
+                t = 1
+            if "floor_2" in name:
+                t = 2
+            if "floor_3" in name:
+                t = 3
+            if "floor_4" in name:
+                t = 4
+            if "floor_5" in name:
+                t = 5
+            all_devices[t[0]].append(lat)
+            all_devices[t[1]].append(lon)
+            all_devices[t[2]].append(tot)
             i += 1
         print("API parsed")
         return all_devices
     else:
         print("External error")
         exit(5)
-
 
 output = api_call(furl, fam)
 print(output)
